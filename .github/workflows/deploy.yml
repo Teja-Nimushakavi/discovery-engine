@@ -1,0 +1,78 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pytest
+
+      - name: Run Ruff Linting
+        run: |
+          ruff check .
+
+      # Add pytest later when tests are fully implemented
+      # - name: Run Pytest
+      #   run: |
+      #     pytest
+
+  build-and-deploy:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+
+      - name: 'Docker Auth'
+        run: |-
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      # ---------------- API Deploy ----------------
+      - name: Build API Container
+        run: |
+          cd api
+          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/discovery/discovery-api:${{ github.sha }} .
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/discovery/discovery-api:${{ github.sha }}
+
+      - name: Deploy API to Cloud Run
+        run: |
+          gcloud run deploy discovery-api \
+            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/discovery/discovery-api:${{ github.sha }} \
+            --region us-central1 \
+            --allow-unauthenticated
+
+      # ------------- Dashboard Deploy -------------
+      - name: Build Dashboard Container
+        run: |
+          cd dashboard
+          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/discovery/discovery-dashboard:${{ github.sha }} .
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/discovery/discovery-dashboard:${{ github.sha }}
+
+      - name: Deploy Dashboard to Cloud Run
+        run: |
+          gcloud run deploy discovery-dashboard \
+            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/discovery/discovery-dashboard:${{ github.sha }} \
+            --region us-central1 \
+            --allow-unauthenticated

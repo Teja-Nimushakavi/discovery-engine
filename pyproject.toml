@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "discovery-engine"
+version = "0.1.0"
+description = "AI-Powered Discovery Engine for Photo Retrieval Cognitive Gap"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+
+dependencies = [
+    "scrapy>=2.11",
+    "langchain>=0.2",
+    "langchain-community>=0.2",
+    "llama-index-core>=0.11",
+    "llama-index-readers-file>=0.2",
+    "sentence-transformers>=3.0",
+    "pinecone-client>=5.0",
+    "groq>=0.9",
+    "sqlalchemy>=2.0",
+    "psycopg2-binary>=2.9",
+    "fastapi>=0.112",
+    "uvicorn>=0.30",
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+    "python-dotenv>=1.0",
+    "httpx>=0.27",
+    "langdetect>=1.0",
+    "spacy>=3.7",
+    "streamlit>=1.37",
+    "google-play-scraper>=1.2.7",
+    "youtube-comment-downloader>=0.1.75",
+    "vaderSentiment>=3.3.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.5",
+    "bandit>=1.7",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
