@@ -1,6 +1,6 @@
-# PaaS Deployment Guide (Option 1)
+# PaaS Deployment Guide (Railway + Vercel)
 
-This guide walks you through deploying the `discovery-engine` entirely for **free** using Vercel (Frontend), Render (API), Supabase (PostgreSQL), and GitHub Actions (Scheduled Pipeline).
+This guide walks you through deploying the `discovery-engine` entirely for **free** using Vercel (Frontend), Railway (API), Supabase (PostgreSQL), and GitHub Actions (Scheduled Pipeline).
 
 ## 1. Database (Supabase)
 
@@ -17,33 +17,34 @@ Supabase offers a generous free tier for PostgreSQL.
    psql "your-supabase-connection-string" -f storage/migrations/001_initial_schema.sql
    ```
 
-## 2. API (Render)
+## 2. API (Railway)
 
-We've prepared a `render.yaml` file in the root of your project to automate this via Infrastructure as Code.
+Railway is incredibly fast and has a great free tier for hosting Docker containers.
 
-1. Go to [Render](https://render.com/) and create an account.
-2. Make sure your latest code (including the `render.yaml`) is pushed to your GitHub repository.
-3. In Render, click **New -> Blueprint**.
-4. Connect your GitHub account and select your `discovery-engine` repository.
-5. Render will detect the `render.yaml` file and prompt you to create the service: `discovery-engine-api`.
-6. **Configure Environment Variables:**
-   Render will ask you to provide the missing environment variables (because `sync: false` was set in the yaml):
+1. Go to [Railway](https://railway.app/) and log in with your GitHub account.
+2. Click **New Project** -> **Deploy from GitHub repo**.
+3. Select your `discovery-engine` repository.
+4. **Important:** By default, Railway might try to build the root folder. You need to tell it where the Dockerfile is. 
+   - Click on the newly created service in your Railway project dashboard.
+   - Go to **Settings** -> **Build**.
+   - Under **Builder**, ensure it is set to **Dockerfile**.
+   - Set the **Dockerfile Path** to `api/Dockerfile`.
+5. Go to the **Variables** tab for that service and click **New Variable**. Add these:
    *   `DATABASE_URL`: Paste the Supabase Connection String.
    *   `GROQ_API_KEY`: Your Groq API key.
    *   `PINECONE_API_KEY`: Your Pinecone API key.
-   *   `APIFY_API_TOKEN`: Your Apify token (if applicable).
-7. Click **Apply**.
-
-8. Once the API is deployed, copy its public URL (e.g., `https://discovery-engine-api.onrender.com`).
+   *   `APIFY_API_TOKEN`: Your Apify token.
+6. Go to the **Networking** tab and click **Generate Domain**.
+7. Copy this new public URL (e.g., `https://discovery-engine...up.railway.app`).
 
 ## 3. Scheduled Data Pipeline (GitHub Actions)
 
-Since cron jobs are paid on Render, we will use **GitHub Actions** to run the pipeline for free. We have already included a `.github/workflows/pipeline.yml` file.
+We will use **GitHub Actions** to run the pipeline for free. We have already included a `.github/workflows/pipeline.yml` file.
 
 1. Go to your repository on **GitHub**.
 2. Click on **Settings -> Secrets and variables -> Actions**.
 3. Under the **Secrets** tab, click **New repository secret**.
-4. Add the following secrets (the same values you used for Render):
+4. Add the following secrets (the exact same values you used for Railway):
    *   `DATABASE_URL`
    *   `GROQ_API_KEY`
    *   `PINECONE_API_KEY`
@@ -61,11 +62,11 @@ Vercel is the easiest way to deploy a Vite React app.
 5. Vercel will automatically detect that you are using Vite and set the build command to `npm run build` and output directory to `dist`.
 6. Add your Environment Variables:
    *   **Name:** `VITE_API_URL`
-   *   **Value:** `https://discovery-engine-api.onrender.com` (Your Render API URL from Step 2)
+   *   **Value:** `https://your-railway-domain.up.railway.app` (Your Railway API URL from Step 2)
 7. Click **Deploy**.
 
 ## 5. Verification
 
 1. Visit your new Vercel `.vercel.app` URL to see the React Dashboard.
-2. Test an API endpoint via the Swagger UI at `https://discovery-engine-api.onrender.com/docs`.
-3. Check the Render logs to ensure the pipeline runs successfully.
+2. Test an API endpoint via the Swagger UI at `https://your-railway-domain.up.railway.app/docs`.
+3. Check the GitHub Actions logs to ensure the pipeline runs successfully.
