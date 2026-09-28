@@ -9,11 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app
 
-# Install system dependencies required for some python packages (e.g., psycopg2)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+
 
 # Install python dependencies (cache bust 1)
 COPY ./requirements.txt /app/requirements.txt
