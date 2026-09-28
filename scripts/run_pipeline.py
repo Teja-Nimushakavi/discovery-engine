@@ -47,48 +47,50 @@ def main():
     logger.info("Initializing Pinecone store...")
     vector_store = PineconeStore()
     
-    # 2. Sample Data Processing
-    use_real_data = "--real" in sys.argv
-    sample_reviews = []
+    # 2. Scrape Real Data
+    logger.info("Running scrapers to fetch real data...")
+    from crawlers.google_play.scraper import GooglePlayScraper
+    from scripts.scrape_remaining_platforms import main as run_other_scrapers
     
-    if use_real_data:
-        logger.info("Loading real reviews from data/raw/google_play/real_data.jsonl...")
-        import json
+    try:
+        logger.info("Scraping Google Play...")
+        with GooglePlayScraper() as scraper:
+            scraper.scrape_all_apps()
+            
+        logger.info("Scraping other platforms...")
+        run_other_scrapers()
+    except Exception as e:
+        logger.error(f"Scraping encountered an error, continuing with existing data: {e}")
+
+    # 3. Load all scraped data
+    logger.info("Loading real reviews from data/raw/...")
+    sample_reviews = []
+    import json
+    from pathlib import Path
+    
+    for jsonl_file in Path("data/raw").rglob("*.jsonl"):
         try:
-            with open("data/raw/google_play/real_data.jsonl", "r", encoding="utf-8") as f:
+            with open(jsonl_file, "r", encoding="utf-8") as f:
                 for line in f:
                     if not line.strip(): continue
                     data = json.loads(line)
+                    
+                    text = data.get("review_text", "")
+                    if not text:
+                        text = data.get("body", "") + " " + data.get("title", "")
+                    if not text.strip(): continue
+                        
                     sample_reviews.append({
-                        "text": data.get("body", "") + " " + data.get("title", ""),
-                        "source_platform": data.get("source_platform", "google_play"),
-                        "app_referenced": "Google Photos",
+                        "text": text,
+                        "source_platform": data.get("source_platform", "unknown"),
+                        "app_referenced": data.get("app_name", data.get("app_referenced", "unknown")),
                         "author": data.get("author", "unknown"),
                         "timestamp": data.get("timestamp", datetime.now(timezone.utc).isoformat()),
                     })
-        except FileNotFoundError:
-            logger.error("Real data file not found!")
-            sys.exit(1)
-    else:
-        logger.info("Using synthetic mock reviews...")
-        sample_reviews = [
-            {
-                "text": "I have 50,000 photos and I can't find the one from my sister's wedding in 2019. I remember the blue dress she wore but Google Photos only lets me search by date, which I forgot.",
-                "source_platform": "google_play",
-                "app_referenced": "Google Photos",
-                "author": "user123",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            },
-            {
-                "text": "Why is it so hard to search for emotions? I want to find that really happy photo from the beach trip, but typing 'happy' just shows me pictures of signs with the word happy on them. Apple photos needs to fix this.",
-                "source_platform": "app_store",
-                "app_referenced": "iCloud Photos",
-                "author": "user456",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
-        ]
+        except Exception as e:
+            logger.error(f"Failed to read {jsonl_file}: {e}")
 
-    logger.info(f"Loaded {len(sample_reviews)} reviews.")
+    logger.info(f"Loaded {len(sample_reviews)} real reviews.")
     logger.info("Cleaning sample data...")
     cleaner = TextCleaner()
     cleaned_items = []
@@ -111,8 +113,8 @@ def main():
     embedder = BGEEmbedder()
     embedded_chunks = embedder.embed_chunks(chunks)
 
-    logger.info("Skipping Pinecone upsert for now to avoid dependency issues...")
-    # vector_store.upsert_chunks(embedded_chunks, namespace="test_namespace")
+    logger.info("Upserting chunks to Pinecone...")
+    vector_store.upsert_chunks(embedded_chunks, namespace="test_namespace")
 
     logger.info("Enriching and Saving metadata to PostgreSQL...")
     enricher = MetadataEnricher()
@@ -153,16 +155,8 @@ def main():
         })
     repo.bulk_insert_chunks(db_chunks)
 
-    # 4. RAG Query
-    logger.info("Skipping RAG Engine testing to avoid Pinecone usage.")
-    # rag = RAGEngine(embedder=embedder, vector_store=vector_store)
-    # result = rag.query(question=question, namespaces=["test_namespace"], top_k=5, discovery_key="what_users_forget")
-
-    
-    # logger.info("=== RAG Response ===")
-    # print(result["answer"])
-    
-    logger.info("Integration test complete.")
+    # 4. Cleanup
+    logger.info("Integration and storage pipeline complete.")
 
 
 if __name__ == "__main__":
