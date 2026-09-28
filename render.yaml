@@ -1,0 +1,33 @@
+services:
+  # The FastAPI REST API
+  - type: web
+    name: discovery-engine-api
+    env: docker
+    dockerfilePath: api/Dockerfile
+    plan: free # or 'starter' depending on your needs
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Set this in the Render Dashboard (from Supabase/Neon)
+      - key: GROQ_API_KEY
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: APIFY_API_TOKEN
+        sync: false
+
+  # The Scheduled Data Pipeline
+  - type: cron
+    name: discovery-engine-pipeline
+    env: docker
+    dockerfilePath: Dockerfile.pipeline
+    schedule: "0 0 * * *" # Runs daily at midnight (UTC)
+    plan: starter # Note: Cron jobs are not available on Render's free tier
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: APIFY_API_TOKEN
+        sync: false
