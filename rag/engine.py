@@ -84,6 +84,7 @@ class RAGEngine:
         namespaces: Optional[list[str]] = None,
         top_k: int = RAG_TOP_K,
         discovery_key: Optional[str] = None,
+        filter_dict: Optional[dict] = None,
     ) -> dict[str, Any]:
         """
         Execute a full RAG query.
@@ -115,6 +116,7 @@ class RAGEngine:
             query_vector=query_vector.tolist(),
             top_k=top_k,
             namespaces=namespaces,
+            filter_dict=filter_dict,
         )
 
         # Flatten and sort results by score (descending)

@@ -173,6 +173,7 @@ class MetadataRepository:
             stmt = (
                 select(FeedbackChunk)
                 .where(FeedbackChunk.source_platform == platform)
+                .where(FeedbackChunk.app_referenced == "Google Photos")
                 .order_by(FeedbackChunk.created_at.desc())
                 .limit(limit)
                 .offset(offset)
@@ -189,6 +190,7 @@ class MetadataRepository:
             stmt = (
                 select(FeedbackChunk)
                 .where(FeedbackChunk.taxonomy_label == taxonomy)
+                .where(FeedbackChunk.app_referenced == "Google Photos")
                 .order_by(FeedbackChunk.created_at.desc())
                 .limit(limit)
             )
@@ -213,13 +215,14 @@ class MetadataRepository:
         """Get corpus statistics: total chunks, per-platform counts, etc."""
         with self._get_session() as session:
             total = session.scalar(
-                select(func.count()).select_from(FeedbackChunk)
+                select(func.count()).select_from(FeedbackChunk).where(FeedbackChunk.app_referenced == "Google Photos")
             )
             platform_counts = session.execute(
                 select(
                     FeedbackChunk.source_platform,
                     func.count().label("count"),
                 )
+                .where(FeedbackChunk.app_referenced == "Google Photos")
                 .group_by(FeedbackChunk.source_platform)
             ).all()
             taxonomy_counts = session.execute(
@@ -228,6 +231,7 @@ class MetadataRepository:
                     func.count().label("count"),
                 )
                 .where(FeedbackChunk.taxonomy_label.isnot(None))
+                .where(FeedbackChunk.app_referenced == "Google Photos")
                 .group_by(FeedbackChunk.taxonomy_label)
             ).all()
             frustration_counts = session.execute(
@@ -236,6 +240,7 @@ class MetadataRepository:
                     func.count().label("count"),
                 )
                 .where(FeedbackChunk.frustration_level.isnot(None))
+                .where(FeedbackChunk.app_referenced == "Google Photos")
                 .group_by(FeedbackChunk.frustration_level)
             ).all()
 

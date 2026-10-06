@@ -70,13 +70,8 @@ APIFY_GOOGLE_PLAY_ACTOR: str = "nFJndFXA5OrgE5r5t"  # Google Play Scraper actor 
 TARGET_APPS: list[dict] = [
     # Google Play
     {"id": "com.google.android.apps.photos", "name": "Google Photos (Android)", "platform": "google_play"},
-    {"id": "com.apple.icloud.photos", "name": "iCloud Photos (Android)", "platform": "google_play"},
-    {"id": "com.amazon.clouddrive.photos", "name": "Amazon Photos (Android)", "platform": "google_play"},
-    {"id": "com.sec.android.gallery3d", "name": "Samsung Gallery", "platform": "google_play"},
     # Apple App Store
     {"id": "962164605", "name": "Google Photos (iOS)", "platform": "apple_app_store"},
-    {"id": "833446975", "name": "iCloud Photos (iOS)", "platform": "apple_app_store"},
-    {"id": "621574163", "name": "Amazon Photos (iOS)", "platform": "apple_app_store"},
 ]
 
 # =============================================================================

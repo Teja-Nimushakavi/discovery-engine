@@ -84,7 +84,8 @@ if page == "Discovery Queries":
         "What information do people actually remember about a photo?": "what_users_remember",
         "What information have users forgotten?": "what_users_forget",
         "How do users formulate searches?": "search_strategies",
-        "What are the cascading failure loops?": "failure_cascades"
+        "What are the cascading failure loops?": "failure_cascades",
+        "How do users react to the new AI 'Ask' replacing classic 'Search'?": "ask_vs_search"
     }
     
     selected_q = st.selectbox("Select a question:", list(discovery_questions.keys()))
@@ -108,7 +109,8 @@ if page == "Discovery Queries":
                     question=custom_q,
                     namespaces=namespace_filter,
                     top_k=20,
-                    discovery_key=discovery_key
+                    discovery_key=discovery_key,
+                    filter_dict={"taxonomy_label": {"$ne": "praise"}, "app_referenced": "Google Photos"}
                 )
                 
                 st.markdown("### 💡 Insights")

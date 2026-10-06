@@ -78,10 +78,6 @@ class MetadataEnricher:
             lower_text = text.lower()
             if "google photos" in lower_text:
                 metadata["app_referenced"] = "Google Photos"
-            elif "icloud" in lower_text or "apple photos" in lower_text:
-                metadata["app_referenced"] = "iCloud Photos"
-            elif "amazon photos" in lower_text:
-                metadata["app_referenced"] = "Amazon Photos"
 
         # 2. Taxonomy Classification
         metadata["taxonomy_label"] = self._classify_taxonomy(text)

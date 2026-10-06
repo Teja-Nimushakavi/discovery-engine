@@ -14,7 +14,9 @@ class QueryRequest(BaseModel):
 @router.post("/")
 def ask_question(req: QueryRequest):
     try:
-        result = engine.query(question=req.query, namespaces=req.namespaces)
+        # Force only google_play for RAG retrieval
+        namespaces = ["google_play"]
+        result = engine.query(question=req.query, namespaces=namespaces, filter_dict={"taxonomy_label": "retrieval_failure"})
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -22,7 +24,8 @@ def ask_question(req: QueryRequest):
 @router.post("/compare")
 def compare_platforms(req: QueryRequest):
     try:
-        result = comparator.compare(question=req.query, namespaces=req.namespaces)
+        namespaces = ["google_play"]
+        result = comparator.compare(question=req.query, namespaces=namespaces)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

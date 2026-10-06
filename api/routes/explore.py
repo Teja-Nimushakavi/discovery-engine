@@ -16,7 +16,7 @@ def explore_chunks(
     offset = (page - 1) * limit
     
     with engine.connect() as conn:
-        query = "SELECT source_platform, original_text, taxonomy_label, frustration_level, app_referenced FROM feedback_chunks WHERE 1=1"
+        query = "SELECT source_platform, original_text, taxonomy_label, frustration_level, app_referenced FROM feedback_chunks WHERE source_platform = 'google_play' AND taxonomy_label = 'retrieval_failure'"
         params = {}
         
         if app:
@@ -34,7 +34,7 @@ def explore_chunks(
         rows = conn.execute(text(query), params).fetchall()
         
         # Count total
-        count_query = "SELECT COUNT(*) FROM feedback_chunks WHERE 1=1"
+        count_query = "SELECT COUNT(*) FROM feedback_chunks WHERE source_platform = 'google_play' AND taxonomy_label = 'retrieval_failure'"
         if app:
             count_query += " AND app_referenced = :app"
         if taxonomy:

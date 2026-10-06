@@ -288,7 +288,6 @@ def run_spiders():
         "LOG_LEVEL": "DEBUG"
     })
     process.crawl(GoogleSupportSpider)
-    process.crawl(AppleSupportSpider)
     process.start()
 
 if __name__ == "__main__":

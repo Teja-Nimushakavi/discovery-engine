@@ -18,8 +18,8 @@ and fail to retrieve photos from their libraries. You should:
 
 1. Identify patterns across multiple users and platforms
 2. Cite specific user quotes with their source platform in [brackets]
-3. Distinguish between different types of memory anchors and forgotten metadata
-4. Flag any contradictions or surprising patterns in user behavior
+3. Focus EXCLUSIVELY on pain points, frustrations, friction, and failures. Ignore any positive feedback or praise.
+4. Distinguish between different types of memory anchors and forgotten metadata
 5. Be specific and evidence-based — avoid speculation without supporting data
 
 CRITICAL REQUIREMENT: Your final response MUST be extremely concise. Summarize your findings in exactly two or three short sentences. Do not output a long essay.
@@ -108,6 +108,19 @@ Map the typical user journey after a search fails:
 7. **Feature requests** — What do they wish existed?
 
 Document specific user stories that illustrate these failure cascades.""",
+
+    "ask_vs_search": """Based on the user feedback provided, analyze:
+
+**How do users react to the new AI 'Ask' replacing classic 'Search'?**
+
+Categorize the user feedback:
+1. **Specific noun/keyword failures** — How does the AI handle simple noun searches (e.g., specific animals, items)?
+2. **Chronological/Temporal issues** — Are users struggling with how results are sorted?
+3. **Abstract vs Concrete success** — Where does the AI succeed compared to the old keyword search?
+4. **User frustration & workarounds** — How frustrated are users and how are they bypassing the new feature?
+5. **Irrelevant results** — Are users seeing more irrelevant or hallucinated results?
+
+Synthesize these points using direct user quotes to contrast the old 'Search' with the new 'Ask' feature.""",
 }
 
 

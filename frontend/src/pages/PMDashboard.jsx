@@ -119,23 +119,18 @@ export default function PMDashboard() {
            <div className="glass-card">Error loading analytics data.</div>
         ) : (
           <>
-            <div className="grid-3" style={{ marginBottom: '2rem' }}>
+            <div className="grid-2" style={{ marginBottom: '2rem' }}>
               <div className="glass-card" style={{ textAlign: 'center' }}>
                 <div className="metric-title">Real Reviews Analyzed</div>
-                <div className="metric-value">14,285</div>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.5rem' }}>Total reviews scraped & synthesized</p>
+                <div className="metric-value">{analytics.total_scraped ? analytics.total_scraped + "+" : "1,500+"}</div>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.5rem' }}>Total reviews fed into cleaning pipeline</p>
               </div>
               <div className="glass-card" style={{ textAlign: 'center' }}>
                 <div className="metric-title">Data Sources</div>
-                <div className="metric-value" style={{ color: 'var(--success-color)', WebkitTextFillColor: 'initial' }}>4</div>
+                <div className="metric-value" style={{ color: 'var(--success-color)', WebkitTextFillColor: 'initial' }}>{analytics.data_sources || 0}</div>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.5rem', textTransform: 'capitalize' }}>
-                  Reddit, Google Play, App Store, Forums
+                  {analytics.sources_list?.join(', ') || 'None'}
                 </p>
-              </div>
-              <div className="glass-card" style={{ textAlign: 'center' }}>
-                <div className="metric-title">Primary Demographics</div>
-                <div className="metric-value" style={{ color: '#f59e0b', WebkitTextFillColor: 'initial', fontSize: '1.8rem' }}>18-35 Yrs</div>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.5rem' }}>68% Heavy Photo Users (52% iOS, 48% Android)</p>
               </div>
             </div>
 
@@ -190,76 +185,30 @@ export default function PMDashboard() {
       </div>
 
       {/* Strategic Insights */}
-      <div className="pm-section animate-fade-in stagger-3">
-        <h3><AlertCircle size={24} /> Top 4 Retrieval Pain Points (Based on Real Reviews)</h3>
-        <div className="grid-2">
-          
-          <div className="insight-card">
-            <h4 style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-              1. Complex Natural Language Queries Fail 
-              <span className="badge" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>42% of users</span>
-            </h4>
-            <p style={{ fontStyle: 'italic', color: 'var(--text-secondary)' }}>"I searched for 'me and Sarah at the beach in Miami' and it just showed me every beach photo I've ever taken. Why can't it combine people and locations properly?"</p>
-            <div style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
-              <div style={{ marginBottom: '0.5rem' }}>
-                <strong style={{ color: '#ef4444' }}>Friction Point:</strong> <span style={{ color: 'var(--text-primary)' }}>Multi-variable search (Person + Location + Setting)</span>
+      {analytics && analytics.real_insights && analytics.real_insights.length > 0 && (
+        <div className="pm-section animate-fade-in stagger-3">
+          <h3><AlertCircle size={24} /> Top 4 Retrieval Pain Points (Based on Real Reviews)</h3>
+          <div className="grid-2">
+            {analytics.real_insights.map((insight, idx) => (
+              <div key={idx} className="insight-card" style={{ display: 'flex', flexDirection: 'column' }}>
+                <h4 style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>
+                  {idx + 1}. {insight.title}
+                  <span className="badge" style={{ backgroundColor: insight.badgeColor, color: insight.badgeTextColor, fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{insight.badge}</span>
+                </h4>
+                <p style={{ fontStyle: 'italic', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.6 }}>"{insight.text}"</p>
+                <div style={{ marginTop: 'auto', fontSize: '0.9rem' }}>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <strong style={{ color: '#ef4444' }}>Friction Point:</strong> <span style={{ color: 'var(--text-primary)' }}>{insight.friction_point}</span>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#3b82f6' }}>Insights:</strong> <span style={{ color: 'var(--text-primary)' }}>{insight.insights}</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <strong style={{ color: '#3b82f6' }}>Insights:</strong> <span style={{ color: 'var(--text-primary)' }}>Users expect conversational search, but the engine relies on single-entity tagging.</span>
-              </div>
-            </div>
+            ))}
           </div>
-
-          <div className="insight-card">
-            <h4 style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-              2. Lack of Relative Temporal Understanding 
-              <span className="badge" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>28% of users</span>
-            </h4>
-            <p style={{ fontStyle: 'italic', color: 'var(--text-secondary)' }}>"Trying to find photos from 'last Christmas' or 'summer 2021'. It never gets the dates right unless I manually scroll back through the timeline. Search is useless for timeframes."</p>
-            <div style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
-              <div style={{ marginBottom: '0.5rem' }}>
-                <strong style={{ color: '#ef4444' }}>Friction Point:</strong> <span style={{ color: 'var(--text-primary)' }}>Relative timeframes and events</span>
-              </div>
-              <div>
-                <strong style={{ color: '#3b82f6' }}>Insights:</strong> <span style={{ color: 'var(--text-primary)' }}>Users remember events ("summer", "Christmas"), not exact MM/DD/YYYY timestamps.</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="insight-card">
-            <h4 style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-              3. Weak Object & Context Semantic Matching 
-              <span className="badge" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>18% of users</span>
-            </h4>
-            <p style={{ fontStyle: 'italic', color: 'var(--text-secondary)' }}>"I clearly remember I was wearing a green jacket in the photo, but searching for 'green jacket' brings up pictures of trees and grass. It doesn't actually understand what's in the image."</p>
-            <div style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
-              <div style={{ marginBottom: '0.5rem' }}>
-                <strong style={{ color: '#ef4444' }}>Friction Point:</strong> <span style={{ color: 'var(--text-primary)' }}>Visual details and attributes (Clothing, Colors)</span>
-              </div>
-              <div>
-                <strong style={{ color: '#3b82f6' }}>Insights:</strong> <span style={{ color: 'var(--text-primary)' }}>Engine misinterprets color keywords as scene descriptors rather than object attributes.</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="insight-card">
-            <h4 style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-              4. OCR & Document Retrieval Failures 
-              <span className="badge" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>12% of users</span>
-            </h4>
-            <p style={{ fontStyle: 'italic', color: 'var(--text-secondary)' }}>"I took a picture of a receipt from Target last week. Searching for 'Target receipt' gives me nothing. I have to scroll through hundreds of screenshots and photos to find it."</p>
-            <div style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
-              <div style={{ marginBottom: '0.5rem' }}>
-                <strong style={{ color: '#ef4444' }}>Friction Point:</strong> <span style={{ color: 'var(--text-primary)' }}>Text within images (Receipts, Notes, Screenshots)</span>
-              </div>
-              <div>
-                <strong style={{ color: '#3b82f6' }}>Insights:</strong> <span style={{ color: 'var(--text-primary)' }}>High frustration when users treat Google Photos as a document archive but cannot retrieve text.</span>
-              </div>
-            </div>
-          </div>
-
         </div>
-      </div>
+      )}
       
     </div>
   );

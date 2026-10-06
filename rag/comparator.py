@@ -33,8 +33,7 @@ class CrossPlatformComparator:
         # 1. Gather answers from each platform
         for ns in namespaces:
             logger.info("Gathering insights for platform: %s", ns)
-            # Query just this one namespace
-            res = self.rag_engine.query(question=question, namespaces=[ns])
+            res = self.rag_engine.query(question=question, namespaces=[ns], filter_dict={"taxonomy_label": {"$ne": "praise"}, "app_referenced": "Google Photos"})
             platform_answers[ns] = res["answer"]
             all_chunks.extend(res["retrieved_chunks"])
             
